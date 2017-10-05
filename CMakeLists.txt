@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(OpenCV)
 find_package(my_vio REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -121,7 +122,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  ${OpenCV_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   ${my_vio_INCLUDE_DIRS}
 )
@@ -133,7 +134,9 @@ message(STATUS "catkin library: ${catkin_LIBRARIES}")
 add_executable(feature_tracker_node src/feature_tracker_node.cpp)
 target_link_libraries(feature_tracker_node
   ${catkin_LIBRARIES}
-  ${my_vio_LIBRARIES}
+  ${OpenCV_LIBRARIES}
+  feature_tracker
+  #  ${my_vio_LIBRARIES}
 )
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
