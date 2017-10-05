@@ -7,8 +7,6 @@
 
 #include <my_vio/feature_tracker.hpp>
 
-static const std::string OPENCV_WINDOW = "Image window";
-
 using namespace vio;
 using namespace std;
 
@@ -17,19 +15,14 @@ class FeatureTrackerWrapper {
   FeatureTrackerWrapper() {
     FeatureMatcherOptions matcher_options;
     FeatureTrackerOptions tracker_options;
-    if (tracker_options.descriptor_type == "ORB" ||
-        tracker_options.descriptor_type == "FREAK")
-      matcher_options.desc_dist_type = FeatureMatcherOptions::HAMMING;
-    if (tracker_options.descriptor_type == "DAISY" ||
-        tracker_options.descriptor_type == "SIFT" ||
-        tracker_options.descriptor_type == "SURF")
-      matcher_options.desc_dist_type = FeatureMatcherOptions::NORM_L2;
-
+    // Use default FAST+FREAK.
     std::unique_ptr<FeatureMatcher> matcher =
         FeatureMatcher::CreateFeatureMatcher(matcher_options);
     tracker_ = FeatureTracker::CreateFeatureTracker(tracker_options,
                                                     std::move(matcher));
   }
+
+  FeatureTracker *tracker() { return tracker_; }
 
  private:
   FeatureTracker *tracker_;
@@ -39,20 +32,17 @@ class ImageConverter {
   ros::NodeHandle nh_;
   image_transport::ImageTransport it_;
   image_transport::Subscriber image_sub_;
-  image_transport::Publisher image_pub_;
-  FeatureTrackerWrapper tracker_;
+
+  FeatureTrackerWrapper tracker_wrapper_;
+  std::unique_ptr<vio::ImageFrame> current_frame_;
 
  public:
   ImageConverter() : it_(nh_) {
     // Subscrive to input video feed and publish output video feed
     image_sub_ =
         it_.subscribe("/usb_cam/image_raw", 1, &ImageConverter::imageCb, this);
-    image_pub_ = it_.advertise("/image_converter/output_video", 1);
-
-    cv::namedWindow(OPENCV_WINDOW);
+    cv::namedWindow("result", cv::WINDOW_AUTOSIZE);
   }
-
-  ~ImageConverter() { cv::destroyWindow(OPENCV_WINDOW); }
 
   void imageCb(const sensor_msgs::ImageConstPtr &msg) {
     cv_bridge::CvImagePtr cv_ptr;
@@ -63,16 +53,28 @@ class ImageConverter {
       return;
     }
 
-    // Draw an example circle on the video stream
-    if (cv_ptr->image.rows > 60 && cv_ptr->image.cols > 60)
-      cv::circle(cv_ptr->image, cv::Point(50, 50), 10, CV_RGB(255, 0, 0));
+    std::unique_ptr<vio::ImageFrame> new_frame(
+        new vio::ImageFrame(cv_ptr->image));
+    // Init first frame.
+    if (current_frame_ == nullptr) {
+      current_frame_ = std::move(new_frame);
+    } else {
+      std::vector<cv::DMatch> matches;
+      tracker_wrapper_.tracker()->TrackFrame(
+          *current_frame_, *new_frame, matches);
+      std::cout << "Feature number in new frame "
+        << new_frame->keypoints().size() << std::endl;
+      std::cout << "Found match " << matches.size() << std::endl;
 
-    // Update GUI Window
-    cv::imshow(OPENCV_WINDOW, cv_ptr->image);
-    cv::waitKey(3);
-
-    // Output modified video stream
-    image_pub_.publish(cv_ptr->toImageMsg());
+      // Draw match.
+      cv::Mat output_img;
+      drawMatches(current_frame_->GetImage(), current_frame_->keypoints(),
+                  new_frame->GetImage(), new_frame->keypoints(), matches,
+                  output_img, cv::Scalar(255, 0, 0), cv::Scalar(5, 255, 0));
+      current_frame_ = std::move(new_frame);
+      cv::imshow("result", output_img);
+      cv::waitKey(3);
+    }
   }
 };
 
