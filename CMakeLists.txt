@@ -126,6 +126,10 @@ include_directories(
   ${my_vio_INCLUDE_DIRS}
 )
 
+message(STATUS "my vio include path: ${my_vio_INCLUDE_DIRS}")
+message(STATUS "my vio library: ${my_vio_LIBRARIES}")
+message(STATUS "catkin library: ${catkin_LIBRARIES}")
+
 add_executable(feature_tracker_node src/feature_tracker_node.cpp)
 target_link_libraries(feature_tracker_node
   ${catkin_LIBRARIES}
