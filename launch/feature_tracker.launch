@@ -1,9 +1,14 @@
 <launch>
+  <arg name="video_device" default="/dev/video0" />
+  <arg name="image_width" default="800" />
+  <arg name="image_height" default="600" />
+  <arg name="framerate" default="60" />
+  <arg name="pixel_format" default="mjpeg" />
   <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
-    <param name="video_device" value="/dev/video0" />
-    <param name="image_width" value="640" />
-    <param name="image_height" value="480" />
-    <param name="pixel_format" value="yuyv" />
+    <param name="video_device" value="$(arg video_device)" />
+    <param name="image_width" value="$(arg image_width)" />
+    <param name="image_height" value="$(arg image_height)" />
+    <param name="pixel_format" value="$(arg pixel_format)" />
     <param name="camera_frame_id" value="usb_cam" />
     <param name="io_method" value="mmap"/>
   </node>
