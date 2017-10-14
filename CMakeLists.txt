@@ -15,9 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
+  tf
 )
 
 find_package(OpenCV)
+find_package(Eigen3 REQUIRED )
 find_package(my_vio REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -123,6 +125,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   ${OpenCV_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
   ${my_vio_INCLUDE_DIRS}
 )
@@ -137,6 +140,13 @@ target_link_libraries(feature_tracker_node
   ${OpenCV_LIBRARIES}
   feature_tracker
   #  ${my_vio_LIBRARIES}
+)
+
+add_executable(imu_filter_node src/imu_filter_node.cpp)
+target_link_libraries(imu_filter_node
+  orientation_tracking
+  ${EIGEN3_LIBS}
+  ${catkin_LIBRARIES}
 )
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}

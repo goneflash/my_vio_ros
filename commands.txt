@@ -13,3 +13,5 @@ roslaunch my_vio_ros feature_tracker.launch video_device:=/dev/video0 image_widt
 # For webcam on Mac VM
 roslaunch my_vio_ros feature_tracker.launch video_device:=/dev/video0 image_width:=800 image_height:=600 framerate:=60 pixel_format:=mjpeg
 
+# Open IMU filter node
+roslaunch my_vio_ros imu_filter.launch imu_topic:=/phone1/android/imu

@@ -1,0 +1,7 @@
+<launch>
+  <arg name="imu_topic" />
+  <node name="imu_filter" pkg="my_vio_ros" type="imu_filter_node" output="screen">
+    <remap from="/imu_raw_data" to="/phone1/android/imu" />
+  </node>
+  <node name="visualize_imu_filter" pkg="rviz" type="rviz" output="screen" />
+</launch>

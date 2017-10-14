@@ -60,10 +60,10 @@ class ImageConverter {
       current_frame_ = std::move(new_frame);
     } else {
       std::vector<cv::DMatch> matches;
-      tracker_wrapper_.tracker()->TrackFrame(
-          *current_frame_, *new_frame, matches);
+      tracker_wrapper_.tracker()->TrackFrame(*current_frame_, *new_frame,
+                                             matches);
       std::cout << "Feature number in new frame "
-        << new_frame->keypoints().size() << std::endl;
+                << new_frame->keypoints().size() << std::endl;
       std::cout << "Found match " << matches.size() << std::endl;
 
       // Draw match.
