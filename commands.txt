@@ -1,3 +1,4 @@
+
 roslaunch my_vio_ros feature_tracker_logitech.launch
 roslaunch my_vio_ros play_vio_data.launch file_name:=/home/goneflash/catkin_ws/data/MH_01_easy.bag
 

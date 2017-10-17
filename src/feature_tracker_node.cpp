@@ -40,7 +40,7 @@ class ImageConverter {
   ImageConverter() : it_(nh_) {
     // Subscrive to input video feed and publish output video feed
     image_sub_ =
-        it_.subscribe("/usb_cam/image_raw", 1, &ImageConverter::imageCb, this);
+        it_.subscribe("/image_raw", 1, &ImageConverter::imageCb, this);
     cv::namedWindow("result", cv::WINDOW_AUTOSIZE);
   }
 
@@ -67,10 +67,13 @@ class ImageConverter {
       std::cout << "Found match " << matches.size() << std::endl;
 
       // Draw match.
-      cv::Mat output_img;
-      drawMatches(current_frame_->GetImage(), current_frame_->keypoints(),
-                  new_frame->GetImage(), new_frame->keypoints(), matches,
-                  output_img, cv::Scalar(255, 0, 0), cv::Scalar(5, 255, 0));
+      cv::Mat output_img = current_frame_->GetImage().clone();
+      int thickness = 2;
+      for (int i = 0; i < matches.size(); ++i) {
+        line(output_img, new_frame->keypoints()[matches[i].trainIdx].pt,
+             current_frame_->keypoints()[matches[i].queryIdx].pt,
+             cv::Scalar(255, 0, 0), thickness);
+      }
       current_frame_ = std::move(new_frame);
       cv::imshow("result", output_img);
       cv::waitKey(3);
