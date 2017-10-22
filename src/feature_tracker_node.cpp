@@ -22,10 +22,10 @@ class FeatureTrackerWrapper {
                                                     std::move(matcher));
   }
 
-  FeatureTracker *tracker() { return tracker_; }
+  FeatureTracker *tracker() { return tracker_.get(); }
 
  private:
-  FeatureTracker *tracker_;
+  std::unique_ptr<FeatureTracker> tracker_;
 };
 
 class ImageConverter {
